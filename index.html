@@ -33,7 +33,6 @@ var randomize = function()
 		img.src = URL.createObjectURL(userFiles.files[i]);
 		imageList.push(img)
 	}
-	console.log(imageList.length)
 	var blacklist = [];
 	var randomizedList = [];
 	for(var i = 0;(i < imageList.length && i < (dimension*dimension)); ++i)
@@ -41,15 +40,19 @@ var randomize = function()
 		var index = Math.floor(Math.random() * (imageList.length));
 		while(blacklist.indexOf(index) != -1)
 		{
-			console.log(blacklist + " " + index)
 			var index = Math.floor(Math.random() * (imageList.length));
 		}
 		blacklist.push(index);
 		randomizedList.push(imageList[index]);
 	}
 	var freespace = new Image();
-	freespace.src = "images/freespace.png"
-	imageList.splice(12, 0, freespace)
+	if(dimension%2 == 1)
+	{
+		freespace.src = "images/freespace.png"
+		freeNum = Math.floor((dimension*dimension)/2)
+		randomizedList.splice(freeNum, 0, freespace)
+		console.log(freeNum)
+	}
 	for(var i = 0; i < randomizedList.length; ++i)
 	{
 		randomizedList[i].i = i;
