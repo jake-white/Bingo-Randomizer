@@ -1,43 +1,69 @@
 <html>
-<input type = "button" value = "Randomize" onclick = "randomize()">
-<br>
+<input type="checkbox" id="default" checked>Use default bingo cards<br>
+Import Custom Cards (120x120 recommended size): <input type = "file" id = "userFiles" multiple><br>
+Length of bingo card: <input id = "dimension" type = "number" min = "2" max = "10" value = "5"><br>
+<input type = "button" value = "Randomize" onclick = "randomize()"><br>
 <canvas id = "myCanvas" width = "700" height = "700"></canvas>
 <script>
 var c=document.getElementById("myCanvas");
 var ctx=c.getContext("2d");
+var userFiles=document.getElementById("userFiles");
+var checkmark=document.getElementById("default");
+var dim=document.getElementById("dimension");
 var imageList = [];
-var total = 45
+var absoluteTotal = 45
 var dimension = 5;
+var cardWidth = 120;
 var randomize = function()
 {
-	imageList = [];
+	dimension = dim.value;
+	c.width = cardWidth*dimension;
+	c.height = cardWidth*dimension;
+	var total = userFiles.files.length;
 	ctx.clearRect(0, 0, c.width, c.height);
-	enumerateImages()
-	for(var i = 0; i < total - (dimension*dimension); ++i)
+	imageList = [];
+	if(checkmark.checked)
 	{
-		var index = Math.floor(Math.random() * imageList.length);
-		console.log("removing" + index)
-		imageList.splice(index, 1);
+		total += absoluteTotal;
+		enumerateImages()
+	}
+	for(var i = 0; i < userFiles.files.length; ++i)
+	{
+		img = new Image()
+		img.src = URL.createObjectURL(userFiles.files[i]);
+		imageList.push(img)
 	}
 	console.log(imageList.length)
+	var blacklist = [];
+	var randomizedList = [];
+	for(var i = 0;(i < imageList.length && i < (dimension*dimension)); ++i)
+	{
+		var index = Math.floor(Math.random() * (imageList.length));
+		while(blacklist.indexOf(index) != -1)
+		{
+			console.log(blacklist + " " + index)
+			var index = Math.floor(Math.random() * (imageList.length));
+		}
+		blacklist.push(index);
+		randomizedList.push(imageList[index]);
+	}
 	var freespace = new Image();
 	freespace.src = "images/freespace.png"
 	imageList.splice(12, 0, freespace)
-	for(var i = 0; i < imageList.length; ++i)
+	for(var i = 0; i < randomizedList.length; ++i)
 	{
-		imageList[i].i = i;
-		imageList[i].onload = function()
+		randomizedList[i].i = i;
+		randomizedList[i].onload = function()
 		{
 		var x = this.i%dimension
 		var y = Math.floor(this.i/dimension);		
-		ctx.drawImage(this, 119*x, 119*y, 119, 119);
-		console.log("DRAWING " + this.i)
+		ctx.drawImage(this, 120*x, 120*y, 120, 120);
 		}
 	}
 }
 var enumerateImages = function()
 {
-	for(i = 1; i < total; ++i)
+	for(i = 1; i < absoluteTotal; ++i)
 	{
 		var newImage = new Image();
 		newImage.src = "images/bingo"+i+".png"
